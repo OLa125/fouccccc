@@ -1,9 +1,19 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from inference import analyze_focus
 import shutil
 import os
 
 app = FastAPI()
+
+# 🔁 إضافة CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # أو حط الدومين بتاع الفرونت هنا
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
