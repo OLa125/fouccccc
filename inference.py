@@ -1,10 +1,8 @@
 import cv2
 import numpy as np
 import mediapipe as mp
-import csv
 import time
-flask_cors import CORS  
-CORS(app)
+
 mp_face_detection = mp.solutions.face_detection
 mp_face_mesh = mp.solutions.face_mesh
 
@@ -22,8 +20,7 @@ def eye_aspect_ratio(eye_landmarks):
     A = np.linalg.norm(eye_landmarks[1] - eye_landmarks[5])
     B = np.linalg.norm(eye_landmarks[2] - eye_landmarks[4])
     C = np.linalg.norm(eye_landmarks[0] - eye_landmarks[3])
-    ear = (A + B) / (2.0 * C)
-    return ear
+    return (A + B) / (2.0 * C)
 
 def get_head_pose(face_landmarks, iw, ih):
     face_2d = []
@@ -58,31 +55,26 @@ def get_head_pose(face_landmarks, iw, ih):
     focus_status = "Focused" if -13 < yaw < 13 and -25 < pitch < 25 else "Not Focused"
     return pitch, yaw, roll, focus_status
 
-# Define function to calculate focus score
 def calculate_focus_score(focus_status, avg_ear, gaze):
     if focus_status == "Focused":
         if avg_ear <= EAR_THRESHOLD:
-            return 50  # 👁️ Focused but eyes closed — maybe blinking or tired
+            return 50
         elif gaze == "Center":
-            return 100  # Full focus
+            return 100
         elif gaze != "Center":
-            return 70   # Partial focus with gaze off-center
-
+            return 70
     elif focus_status == "Not Focused":
-        if avg_ear <= EAR_THRESHOLD:  # Eyes closed
-            return 30  # Low focus with eyes closed
+        if avg_ear <= EAR_THRESHOLD:
+            return 30
         elif gaze == "Center":
-            return 30  # Lower focus with eyes open and centered gaze
+            return 30
         else:
-            return 30  # Lower focus with eyes open but not centered gaze
-
-return 0  # Default to 0 if no conditions match
+            return 30
+    return 0
 
 def analyze_focus(video_path):
     cap = cv2.VideoCapture(video_path)
     focus_scores = []
-    frame_count = 0
-    start_time = time.time()
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -122,7 +114,6 @@ def analyze_focus(video_path):
 
                 score = calculate_focus_score(focus_status, avg_ear, gaze)
                 focus_scores.append(score)
-                frame_count += 1
 
     cap.release()
     cv2.destroyAllWindows()
