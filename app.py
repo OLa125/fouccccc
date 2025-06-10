@@ -24,3 +24,6 @@ async def analyze_video(file: UploadFile = File(...)):
     os.remove("temp_video.mp4")
 
     return {"focus_score": score}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="0.0.0.0", port=10000)
